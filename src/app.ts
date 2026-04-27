@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import movies from './routes/movies';
+import { moviesRouter } from './routes/movies';
 import favorites from './routes/favorites';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
-app.use('/api/movies', movies);
+app.use('/api/movies', moviesRouter);
 app.use('/api/favorites', favorites);
 app.use(errorHandler);
 

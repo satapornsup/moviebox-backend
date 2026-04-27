@@ -1,3 +1,4 @@
+// prisma:version=5
 // Switch provider to "mysql" or "sqlserver" for MySQL/MSSQL variants.
 // MongoDB requires a replica set (Atlas free tier provides one).
 generator client {
@@ -7,6 +8,25 @@ generator client {
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+model Movie {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  tmdbId       Int      @unique
+  title        String
+  titleLower   String                            
+  overview     String   @default("")
+  posterPath   String?
+  backdropPath String?
+  releaseDate  String?
+  voteAverage  Float    @default(0)
+  popularity   Float    @default(0)
+  syncedAt     DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([popularity(sort: Desc), voteAverage(sort: Desc)])
+  @@index([titleLower])                           
 }
 
 model Favorite {
