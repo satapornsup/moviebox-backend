@@ -14,7 +14,7 @@ Owns a `Movie` collection seeded from TMDb plus per-user `Favorite` records.
 ## Architecture
 
 ```
-TMDb /movie/popular ──[scripts/seed.ts]──▶ MongoDB Atlas
+TMDb /movie/popular ──[prisma/seed.ts]──▶ MongoDB Atlas
                                                 │
                        Android app ◀──[Express + Prisma]── DB
 ```
@@ -42,7 +42,6 @@ src/
     favorites.ts         # CRUD on user's favorites
 prisma/
   schema.prisma          # Movie + Favorite models
-scripts/
   seed.ts                # TMDb → Mongo upsert (idempotent)
 tests/
   favorites.test.ts      # supertest + mocked prisma
@@ -115,7 +114,7 @@ npm run seed                  # default: 5 pages × 20 = ~100 movies
 npm run seed -- --pages=10    # 10 pages = ~200 movies
 ```
 
-`scripts/seed.ts` fetches `/movie/popular` from TMDb and runs
+`prisma/seed.ts` fetches `/movie/popular` from TMDb and runs
 `prisma.$transaction([upsert, ...])` per page. Idempotent — re-running refreshes
 `popularity` / `voteAverage` / etc. without creating duplicates.
 
