@@ -76,7 +76,7 @@ npm run dev              # http://localhost:3000
 | GET | `/api/movies/search?q=batman&page=1&limit=20` | case-insensitive search on `title` + `overview` |
 | GET | `/api/movies/:id` | movie detail by TMDb id |
 | GET | `/api/favorites` | list favorites for user (header `x-user-id`) |
-| POST | `/api/favorites` | upsert favorite `{ movieId, title, posterPath? }` |
+| POST | `/api/favorites` | upsert favorite `{ movieId, title, posterPath?, voteAverage? }` |
 | DELETE | `/api/favorites/:movieId` | remove favorite |
 
 ### Response shape
@@ -169,12 +169,13 @@ model Movie {
 }
 
 model Favorite {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String
-  movieId    Int
-  title      String
-  posterPath String?
-  createdAt  DateTime @default(now())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String
+  movieId     Int
+  title       String
+  posterPath  String?
+  voteAverage Float    @default(0)
+  createdAt   DateTime @default(now())
 
   @@unique([userId, movieId])
   @@index([userId])
@@ -193,12 +194,13 @@ datasource db {
 }
 
 model Favorite {
-  id         Int      @id @default(autoincrement())
-  userId     String
-  movieId    Int
-  title      String
-  posterPath String?
-  createdAt  DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  userId      String
+  movieId     Int
+  title       String
+  posterPath  String?
+  voteAverage Float    @default(0)
+  createdAt   DateTime @default(now())
 
   @@unique([userId, movieId])
   @@index([userId])

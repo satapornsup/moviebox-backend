@@ -20,18 +20,23 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = getUserId(req);
-    const { movieId, title, posterPath } = req.body as {
-      movieId: number; title: string; posterPath?: string | null;
+    const { movieId, title, posterPath, voteAverage } = req.body as {
+      movieId: number;
+      title: string;
+      posterPath?: string | null;
+      voteAverage?: number | null;
     };
 
     if (!movieId || !title) {
       return res.status(400).json({ message: 'movieId and title are required' });
     }
 
+    const va = typeof voteAverage === 'number' ? voteAverage : 0;
+
     const fav = await prisma.favorite.upsert({
       where: { userId_movieId: { userId, movieId } },
-      create: { userId, movieId, title, posterPath: posterPath ?? null },
-      update: { title, posterPath: posterPath ?? null },
+      create: { userId, movieId, title, posterPath: posterPath ?? null, voteAverage: va },
+      update: { title, posterPath: posterPath ?? null, voteAverage: va },
     });
     res.status(201).json(fav);
   } catch (e) { next(e); }
