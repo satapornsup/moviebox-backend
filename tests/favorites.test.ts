@@ -26,17 +26,43 @@ describe('POST /api/favorites', () => {
       movieId: 1,
       title: 'Test Movie',
       posterPath: null,
+      voteAverage: 7.8,
       createdAt: new Date('2024-01-01'),
     });
 
     const res = await request(app)
       .post('/api/favorites')
-      .send({ movieId: 1, title: 'Test Movie' });
+      .send({ movieId: 1, title: 'Test Movie', voteAverage: 7.8 });
 
     expect(res.status).toBe(201);
     expect(res.body.movieId).toBe(1);
     expect(res.body.title).toBe('Test Movie');
+    expect(res.body.voteAverage).toBe(7.8);
     expect(mockPrisma.favorite.upsert).toHaveBeenCalledTimes(1);
+    // Persisted in both create + update branches of the upsert
+    const args = mockPrisma.favorite.upsert.mock.calls[0][0];
+    expect(args.create).toMatchObject({ voteAverage: 7.8 });
+    expect(args.update).toMatchObject({ voteAverage: 7.8 });
+  });
+
+  it('defaults voteAverage to 0 when omitted', async () => {
+    mockPrisma.favorite.upsert.mockResolvedValueOnce({
+      id: 'a2',
+      userId: 'demo-user',
+      movieId: 2,
+      title: 'No Score',
+      posterPath: null,
+      voteAverage: 0,
+      createdAt: new Date(),
+    });
+
+    const res = await request(app)
+      .post('/api/favorites')
+      .send({ movieId: 2, title: 'No Score' });
+
+    expect(res.status).toBe(201);
+    const args = mockPrisma.favorite.upsert.mock.calls[0][0];
+    expect(args.create).toMatchObject({ voteAverage: 0 });
   });
 
   it('rejects when movieId missing', async () => {
@@ -52,11 +78,11 @@ describe('GET /api/favorites', () => {
     mockPrisma.favorite.findMany.mockResolvedValueOnce([
       {
         id: 'a1', userId: 'demo-user', movieId: 1,
-        title: 'A', posterPath: null, createdAt: new Date(),
+        title: 'A', posterPath: null, voteAverage: 7.5, createdAt: new Date(),
       },
       {
         id: 'a2', userId: 'demo-user', movieId: 2,
-        title: 'B', posterPath: null, createdAt: new Date(),
+        title: 'B', posterPath: null, voteAverage: 6.1, createdAt: new Date(),
       },
     ]);
 
