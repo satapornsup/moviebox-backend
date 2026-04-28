@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Request } from 'express';
 import { PrismaClient, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -59,7 +59,6 @@ moviesRouter.get('/search', async (req, res, next) => {
 
     const { page, limit, skip } = parsePagination(req);
 
-    // Case-insensitive substring match — ใช้ได้ทุก DB ที่ Prisma support
     const where: Prisma.MovieWhereInput = {
       OR: [
         { title:    { contains: q, mode: 'insensitive' } },
